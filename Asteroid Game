@@ -1,0 +1,96 @@
+import turtle,math,random,time
+
+wn = turtle.Screen()
+wn.setup(width=600, height=600)
+wn.title("Aestroids")
+wn.bgcolor("black")
+
+wn.tracer(0) 
+
+player= turtle.Turtle()
+player.speed(0)
+player.up()
+player.color("white")
+player.shape("turtle")
+player.score = 0 #create variable only for player
+
+def turnLeft():
+  player.lt(15)
+def turnRight():
+  player.rt(15)
+
+wn.listen() #listen for key presses
+wn.onkeypress(turnLeft,"Left")
+wn.onkey(turnRight,"Right")
+
+rocket = turtle.Turtle()
+rocket.speed(0)
+rocket.up()
+rocket.color("red")
+rocket.shape("triangle")
+rocket.ht() #hide turtle -- start with the rocket hidden
+rocket.state = False #this variable will be True when the rocket should be moving
+
+def sendrocket():
+  rocket.goto(0,0)
+  rocket.st() #show turtle
+  rocket.setheading(player.heading())
+  rocket.state = True
+wn.onkeypress(sendrocket,"space")
+
+asteroidsList= []
+for i in range(5):
+  asteroid = turtle.Turtle()
+  asteroid.up()
+  asteroid.color("pink")
+  asteroid.shape("circle")
+  asteroid.ht()
+  asteroid.goto(0,0) 
+  asteroid.setheading(random.randint(0,360)) #randomize direction 
+  asteroid.fd(random.randint(300,400)) #randomized how far away 
+  asteroid.speed = random.randint(1,3)/50 #randomize speed
+  asteroid.st() #show turtle
+  asteroid.setheading(asteroid.towards(player)) #point the aestroid at the player
+  asteroidsList.append(asteroid) #add the aestroid to the list so we can keep track of it
+
+pen = turtle.Turtle()
+pen.up()
+pen.color("yellow")
+pen.ht()
+pen.goto(0,270)
+pen.write("Score: "+ str(player.score), False, align = "center", font = ("Arial", 20, "normal"))
+
+while True: #keep our animation going forever
+  wn.update() #update the screen
+  player.goto(0,0)
+  if rocket.state ==True:
+    rocket.fd(1) #just take one tiny step per frame of the animation
+  if rocket.xcor()>300 and rocket.xcor()<-300 and rocket.ycor()<-300 and rocket.ycor()>300:
+    rocket.ht()
+    rocket.State=False
+
+  for asteroid in asteroidsList:
+    asteroid.fd(asteroid.speed)   
+    if asteroid.distance(rocket)<20:
+      #reset rocket
+      rocket.goto(1000,1000)
+      rocket.ht()
+      rocket.state=False
+      #reset asteroid
+      asteroid.ht() #hide turtle
+      asteroid.goto(0,0)
+      asteroid.setheading(random.randint(0,360)) #randomize direction 
+      asteroid.fd(random.randint(300,400)) #randomized how far away 
+      asteroid.speed = random.randint(1,3)/50 #randomize speed
+      asteroid.st() #show turtle
+      asteroid.setheading(asteroid.towards(player))
+      asteroid.speed += 0.01#optional: increase the speed of the asteroid
+      player.score += 10
+      pen.clear() #erase the old score
+      pen.write("Score: "+str(player.score), False, align = "center", font = ("Arial", 20, "normal"))
+      print(player.score)
+    if asteroid.distance(player)<20:
+      print("game over")
+      pen.clear()
+      break #Stop animation when hit by enemy/asteroid
+wn.mainloop() #keep the screen open
